@@ -7,3 +7,10 @@ target/
 *.iws
 *.iml
 *.ipr
+
+node_modules/
+.pnp
+.pnp.js
+
+.next/
+out/

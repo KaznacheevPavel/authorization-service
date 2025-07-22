@@ -38,7 +38,7 @@ public class AuthorizationServiceConfig {
         });
         httpSecurity.exceptionHandling(exception -> {
             exception.defaultAuthenticationEntryPointFor(
-                    new LoginUrlAuthenticationEntryPoint("/login"),
+                    new LoginUrlAuthenticationEntryPoint("http://localhost:3000/auth/login"),
                     new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
             );
         });
@@ -50,7 +50,7 @@ public class AuthorizationServiceConfig {
         RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("postman-client")
                 .clientSecret("{noop}secret")
-                .redirectUri("http://127.0.0.1:8081/callback")
+                .redirectUri("http://localhost:8081/callback")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)

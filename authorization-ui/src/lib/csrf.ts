@@ -1,7 +1,7 @@
 import type { CsrfResponse } from "@/types/csrfResponse";
 
 export async function fetchCsrfToken(): Promise<CsrfResponse> {
-    const url = "http://localhost:8081/csr";
+    const url = "http://localhost:8081/csrf";
 
     const response = await fetch(url, {
         method: "GET",

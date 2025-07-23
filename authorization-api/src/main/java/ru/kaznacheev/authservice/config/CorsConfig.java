@@ -15,8 +15,8 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
-        corsConfiguration.setAllowedMethods(List.of("POST", "OPTIONS"));
-        corsConfiguration.setAllowedHeaders(List.of("Content-Type"));
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "OPTIONS"));
+        corsConfiguration.setAllowedHeaders(List.of("Content-Type", "X-CSRF-TOKEN"));
         corsConfiguration.setExposedHeaders(List.of("Location"));
         corsConfiguration.setAllowCredentials(true);
 

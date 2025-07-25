@@ -9,19 +9,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.web.cors.CorsConfigurationSource;
 import ru.kaznacheev.authservice.config.handler.CustomAuthenticationFailureHandler;
 import ru.kaznacheev.authservice.config.handler.CustomAuthenticationSuccessHandler;
+import ru.kaznacheev.authservice.service.impl.CustomOauth2UserService;
+import ru.kaznacheev.authservice.service.impl.CustomUserDetailsService;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -37,21 +36,29 @@ public class SecurityConfig {
     private final HttpSessionRequestCache requestCache;
     private final CorsConfigurationSource corsConfigurationSource;
     private final SynchronizedCsrfTokenRepository synchronizedCsrfTokenRepository;
+    private final CustomUserDetailsService userDetailsService;
+    private final CustomOauth2UserService oAuth2UserService;
     private final CustomAuthenticationSuccessHandler successHandler;
     private final CustomAuthenticationFailureHandler failureHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.requestCache(httpSecurityRequestCacheConfigurer -> {
-            httpSecurityRequestCacheConfigurer.requestCache(requestCache);
-        });
+        httpSecurity.requestCache(httpSecurityRequestCacheConfigurer ->
+                httpSecurityRequestCacheConfigurer.requestCache(requestCache));
 
         httpSecurity.cors(httpSecurityCorsConfigurer ->
                 httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource));
 
-        httpSecurity.csrf(httpSecurityCsrfConfigurer -> {
-            httpSecurityCsrfConfigurer.csrfTokenRepository(synchronizedCsrfTokenRepository);
-        });
+        httpSecurity.csrf(httpSecurityCsrfConfigurer ->
+                httpSecurityCsrfConfigurer.csrfTokenRepository(synchronizedCsrfTokenRepository));
+
+        httpSecurity.getSharedObject(AuthenticationManagerBuilder.class)
+                .parentAuthenticationManager(null)
+                .userDetailsService(userDetailsService);
+
+        httpSecurity.oauth2Login(httpSecurityOAuth2LoginConfigurer ->
+                httpSecurityOAuth2LoginConfigurer.userInfoEndpoint(userInfoEndpointConfig ->
+                        userInfoEndpointConfig.userService(oAuth2UserService)));
 
         httpSecurity.authorizeHttpRequests(authorize -> {
             authorize.requestMatchers(HttpMethod.GET, "/csrf").permitAll();
@@ -64,17 +71,8 @@ public class SecurityConfig {
             customizer.successHandler(successHandler);
             customizer.failureHandler(failureHandler);
         });
-        return httpSecurity.build();
-    }
 
-    @Bean
-    public UserDetailsService users() {
-        UserDetails user = User.builder()
-                .username("user")
-                .password("{noop}password")
-                .roles("USER")
-                .build();
-        return new InMemoryUserDetailsManager(user);
+        return httpSecurity.build();
     }
 
     @Bean

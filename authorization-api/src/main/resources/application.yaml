@@ -4,7 +4,3 @@ server:
 spring:
   application:
     name: Authorization Service
-
-logging:
-  level:
-    org.springframework.security: debug

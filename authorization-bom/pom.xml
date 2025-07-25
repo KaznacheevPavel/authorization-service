@@ -13,6 +13,11 @@
         <spring-boot-starter-web.version>3.5.3</spring-boot-starter-web.version>
         <spring-boot-starter-security.version>3.5.3</spring-boot-starter-security.version>
         <spring-boot-starter-oauth2-authorization-server.version>3.5.3</spring-boot-starter-oauth2-authorization-server.version>
+        <spring-boot-starter-oauth2-client.version>3.5.3</spring-boot-starter-oauth2-client.version>
+        <spring-boot-starter-data-jpa.version>3.5.3</spring-boot-starter-data-jpa.version>
+
+        <postgresql.version>42.7.7</postgresql.version>
+        <liquibase.version>4.31.1</liquibase.version>
     </properties>
 
     <dependencyManagement>
@@ -32,7 +37,28 @@
                 <artifactId>spring-boot-starter-oauth2-authorization-server</artifactId>
                 <version>${spring-boot-starter-oauth2-authorization-server.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-oauth2-client</artifactId>
+                <version>${spring-boot-starter-oauth2-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-data-jpa</artifactId>
+                <version>${spring-boot-starter-data-jpa.version}</version>
+            </dependency>
 
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-core</artifactId>
+                <version>${liquibase.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>

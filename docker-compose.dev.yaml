@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+
+  sso-postgres:
+    image: postgres:17.4-alpine3.21
+    container_name: sso-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: sso_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    restart: always
+    volumes:
+      - ./docker/postgres/data:/var/lib/postgresql/data
+    networks:
+      - dev-db-net
+
+networks:
+  dev-db-net:

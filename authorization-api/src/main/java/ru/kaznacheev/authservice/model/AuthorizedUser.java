@@ -1,4 +1,4 @@
-package ru.kaznacheev.authservice.model.entity;
+package ru.kaznacheev.authservice.model;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;

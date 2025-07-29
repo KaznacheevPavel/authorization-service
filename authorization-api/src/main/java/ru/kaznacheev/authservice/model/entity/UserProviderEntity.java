@@ -1,13 +1,12 @@
 package ru.kaznacheev.authservice.model.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,38 +15,32 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
 
 @Entity
-@Table(name = "users")
+@Table(name = "user_providers")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
-public class UserEntity {
+public class UserProviderEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "user_id", nullable = false)
-    private UUID id;
+    @EmbeddedId
+    private UserProviderPrimaryKey primaryKey;
 
-    @Column(name = "email", nullable = false)
-    private String email;
+    @Column(name = "provider_user_id", nullable = false)
+    private String providerUserId;
 
-    @Column(name = "password_hash")
-    private String passwordHash;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId(value = "userId")
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private UserEntity user;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<UserProviderEntity> userProviders = new HashSet<>();
-
-    public void addProvider(UserProviderEntity userProvider) {
-        userProviders.add(userProvider);
-        userProvider.setUser(this);
-    };
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId(value = "providerId")
+    @JoinColumn(name = "provider_id", insertable = false, updatable = false)
+    private ProviderEntity provider;
 
     @Override
     public boolean equals(Object o) {
@@ -60,8 +53,8 @@ public class UserEntity {
                 ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
                 : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        UserEntity userEntity = (UserEntity) o;
-        return getId() != null && Objects.equals(getId(), userEntity.getId());
+        UserProviderEntity userProviderEntity = (UserProviderEntity) o;
+        return getPrimaryKey() != null && Objects.equals(getPrimaryKey(), userProviderEntity.getPrimaryKey());
     }
 
     @Override

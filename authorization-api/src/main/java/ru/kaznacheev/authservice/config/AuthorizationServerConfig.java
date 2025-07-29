@@ -13,9 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -85,19 +82,6 @@ public class AuthorizationServerConfig {
                 .build();
 
         return new InMemoryRegisteredClientRepository(postmanClient);
-    }
-
-    @Bean
-    public ClientRegistrationRepository clientRegistrationRepository() {
-        ClientRegistration mockClient = ClientRegistration.withRegistrationId(UUID.randomUUID().toString())
-                .clientId("mock")
-                .clientSecret("{noop}mock")
-                .authorizationUri("mock")
-                .tokenUri("mock")
-                .redirectUri("mock")
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .build();
-        return new InMemoryClientRegistrationRepository(mockClient);
     }
 
     @Bean

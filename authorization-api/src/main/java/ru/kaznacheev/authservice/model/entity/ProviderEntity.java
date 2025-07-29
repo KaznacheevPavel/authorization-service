@@ -1,13 +1,10 @@
 package ru.kaznacheev.authservice.model.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,38 +13,24 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
 
 @Entity
-@Table(name = "users")
+@Table(name = "providers")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
-public class UserEntity {
+public class ProviderEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "user_id", nullable = false)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "provider_id", nullable = false)
+    private Integer id;
 
-    @Column(name = "email", nullable = false)
-    private String email;
-
-    @Column(name = "password_hash")
-    private String passwordHash;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<UserProviderEntity> userProviders = new HashSet<>();
-
-    public void addProvider(UserProviderEntity userProvider) {
-        userProviders.add(userProvider);
-        userProvider.setUser(this);
-    };
+    @Column(name = "title", nullable = false)
+    private String title;
 
     @Override
     public boolean equals(Object o) {
@@ -60,8 +43,8 @@ public class UserEntity {
                 ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
                 : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        UserEntity userEntity = (UserEntity) o;
-        return getId() != null && Objects.equals(getId(), userEntity.getId());
+        ProviderEntity providerEntity = (ProviderEntity) o;
+        return getId() != null && Objects.equals(getId(), providerEntity.getId());
     }
 
     @Override

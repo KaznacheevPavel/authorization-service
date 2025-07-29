@@ -4,3 +4,19 @@ server:
 spring:
   application:
     name: Authorization Service
+  security:
+    oauth2:
+      client:
+        provider:
+          yandex-provider:
+            authorization-uri: https://oauth.yandex.ru/authorize
+            token-uri: https://oauth.yandex.ru/token
+            userInfoUri: https://login.yandex.ru/info
+            user-name-attribute: default_email
+        registration:
+          yandex:
+            provider: yandex-provider
+            client-id: ${YANDEX_CLIENT_ID}
+            client-secret: ${YANDEX_CLIENT_SECRET}
+            redirect-uri: http://localhost:8081/login/oauth2/code/yandex
+            authorization-grant-type: authorization_code

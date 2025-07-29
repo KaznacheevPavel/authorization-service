@@ -4,12 +4,11 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="create-tag-v.0.0.1" author="Kaznacheev Pavel">
-        <tagDatabase tag="v.0.0.1"/>
+    <changeSet id="create-providers-table" author="Kaznacheev Pavel">
+        <sqlFile path="sql/create-providers-table.sql" relativeToChangelogFile="true"/>
+        <rollback>
+            <sqlFile path="sql/drop-providers-table.sql" relativeToChangelogFile="true"/>
+        </rollback>
     </changeSet>
-
-    <include file="create-users-table.xml" relativeToChangelogFile="true"/>
-    <include file="create-providers-table.xml" relativeToChangelogFile="true"/>
-    <include file="create-user_providers-table.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

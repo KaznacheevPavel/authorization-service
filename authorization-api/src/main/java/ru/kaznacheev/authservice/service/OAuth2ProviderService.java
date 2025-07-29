@@ -1,7 +1,7 @@
 package ru.kaznacheev.authservice.service;
 
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import ru.kaznacheev.authservice.model.entity.AuthorizedUser;
+import ru.kaznacheev.authservice.model.AuthorizedUser;
 
 public interface OAuth2ProviderService {
 

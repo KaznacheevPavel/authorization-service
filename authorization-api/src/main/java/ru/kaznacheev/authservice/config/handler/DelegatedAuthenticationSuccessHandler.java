@@ -18,7 +18,7 @@ import java.util.Objects;
 
 @Configuration
 @RequiredArgsConstructor
-public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+public class DelegatedAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     private final HttpSessionRequestCache requestCache;
 

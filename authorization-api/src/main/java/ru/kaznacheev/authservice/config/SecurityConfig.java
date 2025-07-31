@@ -10,8 +10,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.web.cors.CorsConfigurationSource;
-import ru.kaznacheev.authservice.config.handler.CustomAuthenticationFailureHandler;
-import ru.kaznacheev.authservice.config.handler.CustomAuthenticationSuccessHandler;
+import ru.kaznacheev.authservice.config.handler.DelegatedAccessDeniedHandler;
+import ru.kaznacheev.authservice.config.handler.DelegatedAuthenticationFailureHandler;
+import ru.kaznacheev.authservice.config.handler.DelegatedAuthenticationSuccessHandler;
 import ru.kaznacheev.authservice.service.impl.CustomOauth2UserService;
 import ru.kaznacheev.authservice.service.impl.CustomUserDetailsService;
 
@@ -20,13 +21,16 @@ import ru.kaznacheev.authservice.service.impl.CustomUserDetailsService;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final ApplicationProperties.FrontendProperties frontendProperties;
     private final HttpSessionRequestCache requestCache;
     private final CorsConfigurationSource corsConfigurationSource;
-    private final SynchronizedCsrfTokenRepository synchronizedCsrfTokenRepository;
+    private final SynchronizedCsrfTokenRepository csrfTokenRepository;
     private final CustomUserDetailsService userDetailsService;
     private final CustomOauth2UserService oAuth2UserService;
-    private final CustomAuthenticationSuccessHandler successHandler;
-    private final CustomAuthenticationFailureHandler failureHandler;
+    private final DelegatedAuthenticationSuccessHandler authenticationSuccessHandler;
+    private final DelegatedAuthenticationFailureHandler authenticationFailureHandler;
+    private final DelegatedAccessDeniedHandler accessDeniedHandler;
+    private final DelegatedAuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -38,22 +42,33 @@ public class SecurityConfig {
                         corsConfigurer.configurationSource(corsConfigurationSource))
 
                 .csrf(csrfConfigurer ->
-                        csrfConfigurer.csrfTokenRepository(synchronizedCsrfTokenRepository))
+                        csrfConfigurer.csrfTokenRepository(csrfTokenRepository))
 
-                .oauth2Login(oauth2Loginconfigurer ->
-                        oauth2Loginconfigurer.userInfoEndpoint(userInfoEndpointConfigurer ->
-                                userInfoEndpointConfigurer.userService(oAuth2UserService)))
-
-                .authorizeHttpRequests(requestConfigurer -> {
-                    requestConfigurer.requestMatchers(HttpMethod.GET, "/csrf").permitAll();
-                    requestConfigurer.anyRequest().authenticated();
+                .authorizeHttpRequests(authorizeHttpRequestConfigurer -> {
+                    authorizeHttpRequestConfigurer
+                            .requestMatchers(HttpMethod.GET, "/csrf").permitAll()
+                            .anyRequest().authenticated();
                 })
 
                 .formLogin(formLoginConfigurer -> {
-                    formLoginConfigurer.loginPage("http://localhost:3000/auth/login");
-                    formLoginConfigurer.loginProcessingUrl("/login");
-                    formLoginConfigurer.successHandler(successHandler);
-                    formLoginConfigurer.failureHandler(failureHandler);
+                    formLoginConfigurer
+                            .loginProcessingUrl("/login")
+                            .successHandler(authenticationSuccessHandler)
+                            .failureHandler(authenticationFailureHandler);
+                })
+
+                .oauth2Login(oauth2Loginconfigurer -> {
+                    oauth2Loginconfigurer
+                            .defaultSuccessUrl(frontendProperties.getBaseUrl())
+                            .failureHandler(authenticationFailureHandler)
+                            .userInfoEndpoint(userInfoEndpointConfigurer ->
+                                    userInfoEndpointConfigurer.userService(oAuth2UserService));
+                })
+
+                .exceptionHandling(exceptionHandlingConfigurer -> {
+                    exceptionHandlingConfigurer
+                            .authenticationEntryPoint(authenticationEntryPoint)
+                            .accessDeniedHandler(accessDeniedHandler);
                 });
 
         httpSecurity.getSharedObject(AuthenticationManagerBuilder.class)

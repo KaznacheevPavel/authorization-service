@@ -5,11 +5,11 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -25,10 +25,8 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
-import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -38,30 +36,30 @@ import java.time.Duration;
 import java.util.UUID;
 
 @Configuration
+@RequiredArgsConstructor
 public class AuthorizationServerConfig {
+
+    private final ApplicationProperties.FrontendProperties frontendProperties;
 
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain authorizationServiceSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+        OAuth2AuthorizationServerConfigurer authorizationServer =
                 OAuth2AuthorizationServerConfigurer.authorizationServer();
 
         httpSecurity
-                .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-                .with(authorizationServerConfigurer, Customizer.withDefaults())
-                .authorizeHttpRequests(requestConfigurer ->
-                        requestConfigurer.anyRequest().authenticated())
-                .exceptionHandling(exceptionConfigurer ->
-                        exceptionConfigurer
-                                .defaultAuthenticationEntryPointFor(
-                                        new LoginUrlAuthenticationEntryPoint("http://localhost:3000/auth/login"),
-                                        new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
-                                )
-                                .defaultAuthenticationEntryPointFor(
-                                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                                        new NegatedRequestMatcher(new MediaTypeRequestMatcher(MediaType.TEXT_HTML))
-                                )
-                );
+                .securityMatcher(authorizationServer.getEndpointsMatcher())
+
+                .with(authorizationServer, Customizer.withDefaults())
+
+                .authorizeHttpRequests(authorizeHttpRequestConfigurer ->
+                        authorizeHttpRequestConfigurer.anyRequest().authenticated())
+
+                .exceptionHandling(exceptionHandlingConfigurer ->
+                        exceptionHandlingConfigurer.defaultAuthenticationEntryPointFor(
+                                new LoginUrlAuthenticationEntryPoint(frontendProperties.getLoginPage()),
+                                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
+                ));
 
         return httpSecurity.build();
     }

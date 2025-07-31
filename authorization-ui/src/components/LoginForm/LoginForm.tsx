@@ -59,6 +59,7 @@ export default function LoginForm() {
                     className={`${styles.button} ${isLoading ? styles.loading : ''}`}
                     disabled={isLoading}
                 >{isLoading ? '' : 'Войти'}</button>
+                <a href="http://localhost:8081/oauth2/authorization/yandex">Вход через Яндекс</a>
             </form>
         </div>
     );
